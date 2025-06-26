@@ -1,1 +1,40 @@
 
+name: Deploy para Examen tema 8 de DevOps
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22.15.0]
+        
+    steps:
+      -uses: actions/checkout@v2
+      -name: Use Node.js ${{matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+        -run: npm ci
+
+  deploy:   
+    
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Heroku CLI # <- IMPORTANT!!! Make sure the cli is installed before using the action
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh 
+      - uses: akhileshns/heroku-deploy@v3.14.15 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "devopsexamunit8testapp" #Must be unique in Heroku
+          heroku_email: "brendan.mcbride.94@gmail.com"
+
+          
